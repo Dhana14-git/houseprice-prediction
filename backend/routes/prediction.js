@@ -1,32 +1,29 @@
 const express = require('express');
 const router = express.Router();
+const axios = require('axios'); // ✅ REQUIRED
 const Prediction = require('../models/Prediction');
-
-// --- 1. SAVE NEW PREDICTION ---
-const axios = require('axios'); // ADD THIS AT TOP
 
 router.post('/calculate', async (req, res) => {
   try {
     console.log("🔥 Incoming request:", req.body);
 
-    // 🔹 STEP 1: Call ML API
+    // ✅ THIS IS WHERE YOUR ML CALL GOES
     const mlResponse = await axios.post(
-  "https://houseprice-prediction-ej1n.onrender.com/predict",
-  req.body,
-  { timeout: 60000 } // wait 60 seconds
-);
+      "https://houseprice-prediction-1-0dif.onrender.com/api/predictions/calculate",
+      req.body,
+      { timeout: 60000 }
+    );
 
     console.log("✅ ML Response:", mlResponse.data);
 
     const { predictedValue, accuracyScore } = mlResponse.data;
-
     const { userId, address, ...rest } = req.body;
 
-    // 🔹 STEP 2: Save to DB
+    // ✅ SAVE TO DB
     const newPrediction = new Prediction({
       user: userId,
       inputs: {
-        address: address,
+        address: address || "Unknown Location", // IMPORTANT FIX
         location: {
           type: 'Point',
           coordinates: [rest.Lng || 0, rest.Lat || 0]
@@ -41,27 +38,23 @@ router.post('/calculate', async (req, res) => {
       },
       result: {
         predictedValue,
-        accuracyScore
+        accuracyScore: parseFloat(accuracyScore)
       },
       isSaved: false
     });
 
     const savedPrediction = await newPrediction.save();
 
-    // 🔹 STEP 3: Send response to frontend
+    // ✅ SEND BACK TO FRONTEND
     res.status(201).json(savedPrediction);
 
   } catch (err) {
-    console.error("❌ ERROR IN CALCULATE:");
-    console.error(err.message);
-    console.error(err.response?.data);
-
-    res.status(500).json({
-      error: err.message,
-      details: err.response?.data
-    });
+    console.error("❌ ERROR IN CALCULATE:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
+
+module.exports = router;
 // --- 2. CLEANUP ROUTE (Logout Logic) ---
 router.delete('/cleanup/:userId', async (req, res) => {
   try {

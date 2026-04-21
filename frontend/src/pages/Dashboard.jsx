@@ -62,92 +62,80 @@ const Dashboard = () => {
   useEffect(() => { fetchHistory(); }, [fetchHistory]);
 
   const handlePredict = async () => {
-    // ... guest check logic ...
-
-    try {
-      // 1. Get prediction from Flask (Port 5001)
-      const res = await calculatePrediction({ ...formData, userId });
-      
-      if (res.data && res.data.predictedValue !== undefined) {
-        const mlResult = {
-          predictedValue: res.data.predictedValue,
-          accuracyScore: res.data.accuracyScore
-        };
-
-        // Get the token for manual axios calls
-        const token = localStorage.getItem('token');
-
-        // 2. SAVE to Node.js Backend using the correct headers to avoid 401
-        const saveRes = await axios.post(
-          'https://houseprice-prediction-1-0dif.onrender.com/api/predictions/calculate', 
-          {
-            ...formData,
-            ...mlResult,
-            userId
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` } // Passes the security check
-          }
-        );
-
-        setPredictionData({
-          ...mlResult,
-          _id: saveRes.data._id,
-          isSaved: false
-        });
-
-        setView('analysis');
-        
-        if (!userId) localStorage.setItem('guest_prediction_count', '1');
-        else fetchHistory();
-      }
-    } catch (err) { 
-      console.error("Prediction/Save flow failed:", err);
-      if (err.response?.status === 401) {
-        alert("Session expired. Please log in again.");
-        navigate('/auth');
-      } else {
-        alert("An error occurred. Check console.");
-      }
-    }
-  };
-
-
-  const toggleSave = async (id) => {
-  if (!userId) { 
-    navigate('/auth'); 
-    return; 
-  }
-
   try {
     const token = localStorage.getItem('token');
 
-    await axios.patch(
-      `https://houseprice-prediction-1-0dif.onrender.com/api/predictions/save/${id}`,
-      {}, // no body needed
+    const payload = {
+      ...formData,
+      userId,
+      address: formData.address || "Unknown Location"
+    };
+
+    // ✅ ONLY ONE CALL (to backend)
+    const res = await axios.post(
+      'https://houseprice-prediction-1-0dif.onrender.com/api/predictions/calculate',
+      payload,
       {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       }
     );
 
-    // Refresh history after save
-    fetchHistory();
+    console.log("✅ Final response:", res.data);
 
-    // Update UI instantly
-    if (predictionData && predictionData._id === id) {
-      setPredictionData(prev => ({
-        ...prev,
-        isSaved: !prev.isSaved
-      }));
+    // backend already returns saved prediction
+    setPredictionData({
+      _id: res.data._id,
+      predictedValue: res.data.result?.predictedValue,
+      accuracyScore: res.data.result?.accuracyScore,
+      isSaved: res.data.isSaved
+    });
+
+    setView('analysis');
+
+    if (!userId) {
+      localStorage.setItem('guest_prediction_count', '1');
+    } else {
+      fetchHistory();
     }
 
   } catch (err) {
-    console.error("Save toggle failed:", err.response?.data || err.message);
+    console.error("❌ Prediction failed:", err);
+
+    if (err.response?.status === 401) {
+      alert("Session expired. Please log in again.");
+      navigate('/auth');
+    } else {
+      alert("Prediction failed. Check console.");
+    }
   }
 };
 
+const toggleSave = async (id) => {
+  if (!userId) {
+    navigate('/auth');
+    return;
+  }
+
+  try {
+    const res = await axios.patch(
+      `https://houseprice-prediction-1-0dif.onrender.com/api/predictions/save/${id}`
+    );
+
+    console.log("SAVE RESPONSE:", res.data);
+
+    // update UI instantly
+    setPredictionData(prev =>
+      prev && prev._id === id
+        ? { ...prev, isSaved: res.data.isSaved }
+        : prev
+    );
+
+    fetchHistory();
+
+  } catch (err) {
+    console.error("❌ Save toggle failed:", err);
+  }
+};
   const handleAddressSearch = async (e) => {
     if (e.key === 'Enter' && formData.address) {
       setIsSearching(true);
