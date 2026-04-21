@@ -8,7 +8,8 @@ const app = express();
 
 app.use(cors({
   origin: [
-    "*"
+    "http://localhost:3000",
+    "https://houseprice-prediction-one.vercel.app"
   ],
   credentials: true
 }));
