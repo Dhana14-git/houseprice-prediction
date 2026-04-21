@@ -3,9 +3,25 @@ const router = express.Router();
 const Prediction = require('../models/Prediction');
 
 // --- 1. SAVE NEW PREDICTION ---
+const axios = require('axios'); // ADD THIS AT TOP
+
 router.post('/calculate', async (req, res) => {
   try {
-    const { userId, predictedValue, accuracyScore, address, ...rest } = req.body;
+    console.log("🔥 Incoming request:", req.body);
+
+    // 🔹 STEP 1: Call ML API
+    const mlResponse = await axios.post(
+      "https://houseprice-prediction-ej1n.onrender.com/predict",
+      req.body
+    );
+
+    console.log("✅ ML Response:", mlResponse.data);
+
+    const { predictedValue, accuracyScore } = mlResponse.data;
+
+    const { userId, address, ...rest } = req.body;
+
+    // 🔹 STEP 2: Save to DB
     const newPrediction = new Prediction({
       user: userId,
       inputs: {
@@ -23,18 +39,28 @@ router.post('/calculate', async (req, res) => {
         SubwayDst: rest.SubwayDst
       },
       result: {
-        predictedValue: predictedValue,
-        accuracyScore: accuracyScore
+        predictedValue,
+        accuracyScore
       },
-      isSaved: false 
+      isSaved: false
     });
+
     const savedPrediction = await newPrediction.save();
+
+    // 🔹 STEP 3: Send response to frontend
     res.status(201).json(savedPrediction);
+
   } catch (err) {
-    res.status(500).json({ msg: 'Database save failed', error: err.message });
+    console.error("❌ ERROR IN CALCULATE:");
+    console.error(err.message);
+    console.error(err.response?.data);
+
+    res.status(500).json({
+      error: err.message,
+      details: err.response?.data
+    });
   }
 });
-
 // --- 2. CLEANUP ROUTE (Logout Logic) ---
 router.delete('/cleanup/:userId', async (req, res) => {
   try {
@@ -114,9 +140,5 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ msg: 'Server Error during deletion' });
   }
 });
-
-module.exports = router;
-
-module.exports = router;
 
 module.exports = router;
