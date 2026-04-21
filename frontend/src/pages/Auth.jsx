@@ -32,45 +32,44 @@ const Auth = ({ theme, toggleTheme }) => {
     }
     return null;
   };
-
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!isLogin) {
-      const passwordError = validatePassword(formData.password);
-      if (passwordError) {
-        setError(passwordError);
-        return;
-      }
-    }
+  e.preventDefault();
 
-    try {
-      if (isLogin) {
-        const res = await loginUser({ email: formData.email, password: formData.password });
-        
-        // Extract correct ID field from res.data.user
-        const userId = res.data.user.id || res.data.user._id;
+  try {
+    if (isLogin) {
+      const res = await loginUser({
+        email: formData.email,
+        password: formData.password
+      });
 
-        if (userId) {
-          localStorage.setItem('token', res.data.token);
-          localStorage.setItem('userId', userId); 
-          navigate('/profile'); 
-        } else {
-          setError("Session creation failed. Please try again.");
-        }
-      } else {
-        // FIXED: Sending formData which now contains 'username'
-        await registerUser(formData);
-        setIsLogin(true); 
-        setError('Registration successful! Please sign in.');
-        // Reset password field for security after successful registration
-        setFormData(prev => ({ ...prev, password: '' }));
+      console.log("LOGIN RESPONSE:", res.data);
+
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
       }
-    } catch (err) {
-      // Displays the specific message from your backend if available
-      setError(err.response?.data?.msg || err.response?.data?.message || 'Authentication failed');
+
+      const userId = res.data.user?.id || res.data.user?._id;
+      if (userId) {
+        localStorage.setItem('userId', userId);
+      }
+
+      navigate('/profile');
+
+    } else {
+      await registerUser(formData);
+      setIsLogin(true);
+      setError('Registration successful! Please sign in.');
+      setFormData(prev => ({ ...prev, password: '' }));
     }
-  };
+  } catch (err) {
+    setError(
+      err.response?.data?.msg ||
+      err.response?.data?.message ||
+      'Authentication failed'
+    );
+  }
+};
+  
 
   return (
     <div className="min-h-screen flex flex-col font-['Manrope'] bg-[#f6f7f8] dark:bg-[#101922] transition-colors duration-500">
