@@ -6,11 +6,14 @@ const dotenv = require('dotenv');
 dotenv.config();
 const app = express();
 
+const cors = require('cors');
+
 app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: 'https://houseprice-prediction-one.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  credentials: true
 }));
+app.options('*', cors());
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
