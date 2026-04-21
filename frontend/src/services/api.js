@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://houseprice-prediction-1-0dif.onrender.com';
 const ML_URL = 'https://houseprice-prediction-ej1n.onrender.com';// Flask service port
 
 const api = axios.create({ baseURL: API_URL });
