@@ -128,13 +128,28 @@ const toggleSave = async (id) => {
   }
 
   try {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      console.error("❌ No token found");
+      return;
+    }
+
+    console.log("🔄 Saving ID:", id);
+
     const res = await axios.patch(
-      `https://houseprice-prediction-1-0dif.onrender.com/api/predictions/save/${id}`
+      `https://houseprice-prediction-1-0dif.onrender.com/api/predictions/save/${id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
     );
 
-    console.log("SAVE RESPONSE:", res.data);
+    console.log("✅ Save response:", res.data);
 
-    // update UI instantly
+    // ✅ update UI instantly
     setPredictionData(prev =>
       prev && prev._id === id
         ? { ...prev, isSaved: res.data.isSaved }
@@ -144,7 +159,7 @@ const toggleSave = async (id) => {
     fetchHistory();
 
   } catch (err) {
-    console.error("❌ Save toggle failed:", err);
+    console.error("❌ Save failed:", err.response?.data || err.message);
   }
 };
   const handleAddressSearch = async (e) => {
