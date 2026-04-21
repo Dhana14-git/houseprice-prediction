@@ -20,7 +20,7 @@ const Auth = ({ theme, toggleTheme }) => {
   };
 
   // Password validation logic for Sign Up
-  const validatePassword = (password) => {
+  /*const validatePassword = (password) => {
     const minLength = 8;
     const hasUpperCase = /[A-Z]/.test(password);
     const hasLowerCase = /[a-z]/.test(password);
@@ -31,7 +31,7 @@ const Auth = ({ theme, toggleTheme }) => {
       return "Password must include uppercase, lowercase, and a number.";
     }
     return null;
-  };
+  };*/
   const handleSubmit = async (e) => {
   e.preventDefault();
 
