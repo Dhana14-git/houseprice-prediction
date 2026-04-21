@@ -9,7 +9,7 @@ router.post('/calculate', async (req, res) => {
 
     // ✅ THIS IS WHERE YOUR ML CALL GOES
     const mlResponse = await axios.post(
-      "https://houseprice-prediction-1-0dif.onrender.com/api/predictions/calculate",
+      "https://houseprice-prediction-ej1n.onrender.com",
       req.body,
       { timeout: 60000 }
     );

@@ -65,45 +65,56 @@ const Dashboard = () => {
   try {
     const token = localStorage.getItem('token');
 
+    // ✅ Always send valid payload
     const payload = {
       ...formData,
       userId,
-      address: formData.address || "Unknown Location"
+      address: formData.address?.trim() || "Unknown Location"
     };
 
-    // ✅ ONLY ONE CALL (to backend)
+    console.log("📤 Sending payload:", payload);
+
+    // ✅ Call backend ONLY
     const res = await axios.post(
       'https://houseprice-prediction-1-0dif.onrender.com/api/predictions/calculate',
       payload,
       {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined
+        }
       }
     );
 
-    console.log("✅ Final response:", res.data);
+    console.log("✅ Response:", res.data);
 
-    // backend already returns saved prediction
+    // ✅ Safe extraction from backend response
+    const savedData = res.data;
+
     setPredictionData({
-      _id: res.data._id,
-      predictedValue: res.data.result?.predictedValue,
-      accuracyScore: res.data.result?.accuracyScore,
-      isSaved: res.data.isSaved
+      _id: savedData._id,
+      predictedValue: savedData.result?.predictedValue ?? 0,
+      accuracyScore: savedData.result?.accuracyScore ?? 0,
+      isSaved: savedData.isSaved ?? false
     });
 
     setView('analysis');
 
+    // ✅ Guest vs logged-in handling
     if (!userId) {
-      localStorage.setItem('guest_prediction_count', '1');
+      const count = localStorage.getItem('guest_prediction_count') || 0;
+      localStorage.setItem('guest_prediction_count', Number(count) + 1);
     } else {
-      fetchHistory();
+      await fetchHistory(); // ensure latest data
     }
 
   } catch (err) {
-    console.error("❌ Prediction failed:", err);
+    console.error("❌ Prediction failed:", err.response?.data || err.message);
 
     if (err.response?.status === 401) {
       alert("Session expired. Please log in again.");
       navigate('/auth');
+    } else if (err.response?.status === 500) {
+      alert("Server error. Please try again in a few seconds.");
     } else {
       alert("Prediction failed. Check console.");
     }
