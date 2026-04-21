@@ -71,12 +71,12 @@ const FooterColumn = ({ title, links }) => (
     <ul className="space-y-4">
       {links.map((link) => (
         <li key={link}>
-          <a 
+          <button
             href="#" 
             className="text-slate-600 dark:text-slate-400 font-bold text-sm hover:text-[#137fec] dark:hover:text-[#137fec] transition-colors"
           >
             {link}
-          </a>
+          </button>
         </li>
       ))}
     </ul>
