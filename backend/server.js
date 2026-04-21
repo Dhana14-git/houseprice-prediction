@@ -6,12 +6,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 const app = express();
 
-const cors = require('cors');
-
 app.use(cors({
-  origin: 'https://houseprice-prediction-one.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  credentials: true
+  origin: "https://houseprice-prediction-one.vercel.app",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.options('*', cors());
 app.use(express.json());
