@@ -18,12 +18,15 @@ router.post('/calculate', async (req, res) => {
 
     const { predictedValue, accuracyScore } = mlResponse.data;
     const { userId, ...rest } = req.body;
-const address = req.body.address || "Unknown Location";
+
+const address = req.body.address && req.body.address.trim() !== ""
+  ? req.body.address
+  : "Unknown Location";
     // ✅ SAVE TO DB
     const newPrediction = new Prediction({
       user: userId,
       inputs: {
-        address: address || "Unknown Location", // IMPORTANT FIX
+        address: address ,// IMPORTANT FIX
         location: {
           type: 'Point',
           coordinates: [rest.Lng || 0, rest.Lat || 0]
