@@ -50,7 +50,9 @@ const Dashboard = () => {
   if (!userId) return;
 
   try {
-    const res = await getHistory(userId);
+    const res = await axios.get(
+      `https://houseprice-prediction-1-0dif.onrender.com/api/predictions/history/${userId}`
+    );
     setHistory(res.data);
   } catch (err) {
     console.error("History fetch failed");
