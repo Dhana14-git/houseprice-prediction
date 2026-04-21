@@ -114,15 +114,39 @@ const Dashboard = () => {
 
 
   const toggleSave = async (id) => {
-    if (!userId) { navigate('/auth'); return; }
-    try {
-      await axios.patch(`https://houseprice-prediction-1-0dif.onrender.com/api/predictions/save/${id}`);
-      fetchHistory();
-      if (predictionData && predictionData._id === id) {
-        setPredictionData(prev => ({ ...prev, isSaved: !prev.isSaved }));
+  if (!userId) { 
+    navigate('/auth'); 
+    return; 
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+
+    await axios.patch(
+      `https://houseprice-prediction-1-0dif.onrender.com/api/predictions/save/${id}`,
+      {}, // no body needed
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    } catch (err) { console.error("Save toggle failed"); }
-  };
+    );
+
+    // Refresh history after save
+    fetchHistory();
+
+    // Update UI instantly
+    if (predictionData && predictionData._id === id) {
+      setPredictionData(prev => ({
+        ...prev,
+        isSaved: !prev.isSaved
+      }));
+    }
+
+  } catch (err) {
+    console.error("Save toggle failed:", err.response?.data || err.message);
+  }
+};
 
   const handleAddressSearch = async (e) => {
     if (e.key === 'Enter' && formData.address) {
