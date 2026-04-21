@@ -18,3 +18,5 @@ export const loginUser = (userData) => api.post('/auth/login', userData);
 
 // This will now correctly send 'username', 'email', and 'password'
 export const registerUser = (userData) => api.post('/auth/register', userData);
+
+export const getHistory = (userId) => api.get(`/predictions/history/${userId}`);

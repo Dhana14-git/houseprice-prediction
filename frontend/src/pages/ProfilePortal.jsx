@@ -40,8 +40,8 @@ const ProfilePortal = ({ theme, toggleTheme }) => {
                 const config = { headers: { 'Authorization': `Bearer ${token}` } };
                 
                 // Fetch Profile and History simultaneously
-                const userRes = await axios.get(`http://localhost:5000/api/users/${userId}`, config);
-                const historyRes = await axios.get(`http://localhost:5000/api/predictions/history/${userId}`, config);
+                const userRes = await axios.get(`https://houseprice-prediction-1-0dif.onrender.com/api/users/${userId}`, config);
+                const historyRes = await axios.get(`https://houseprice-prediction-1-0dif.onrender.com/api/predictions/history/${userId}`, config);
 
                 if (userRes.data) {
                     setProfile({
@@ -82,7 +82,7 @@ const ProfilePortal = ({ theme, toggleTheme }) => {
     const handleLogout = async () => {
         const userId = localStorage.getItem('userId');
         try {
-            await axios.delete(`http://localhost:5000/api/predictions/cleanup/${userId}`);
+            await axios.delete(`https://houseprice-prediction-1-0dif.onrender.com/api/predictions/cleanup/${userId}`);
         } catch (err) {
             console.error("Cleanup failed:", err);
         }
@@ -103,7 +103,7 @@ const ProfilePortal = ({ theme, toggleTheme }) => {
                 phoneNumber: profile.phoneNumber || ""
             };
 
-            await axios.put(`http://localhost:5000/api/users/update/${userId}`, updateData, config);
+            await axios.put(`https://houseprice-prediction-1-0dif.onrender.com/api/users/update/${userId}`, updateData, config);
             setIsEditing(false);
             setMessage({ text: 'Identity updated successfully!', type: 'success' });
             setTimeout(() => setMessage({ text: '', type: '' }), 3000);
@@ -118,7 +118,7 @@ const ProfilePortal = ({ theme, toggleTheme }) => {
             const token = localStorage.getItem('token');
             const config = { headers: { 'Authorization': `Bearer ${token}` } };
 
-            await axios.put(`http://localhost:5000/api/users/update/${userId}`, {
+            await axios.put(`https://houseprice-prediction-1-0dif.onrender.com/api/users/update/${userId}`, {
                 currentPassword: profile.currentPassword,
                 newPassword: profile.newPassword
             }, config);
@@ -144,7 +144,7 @@ const ProfilePortal = ({ theme, toggleTheme }) => {
 
     const executeDelete = async () => {
         try {
-            await axios.delete(`http://localhost:5000/api/predictions/${deleteModal.id}`);
+            await axios.delete(`https://houseprice-prediction-1-0dif.onrender.com/api/predictions/${deleteModal.id}`);
             setPredictions(predictions.filter(p => p._id !== deleteModal.id));
             setDeleteModal({ show: false, id: null });
             setMessage({ text: 'Valuation removed from archive', type: 'success' });

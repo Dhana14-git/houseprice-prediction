@@ -94,11 +94,11 @@ router.patch('/save/:id', async (req, res) => {
 });
 
 // --- 5. DELETE SINGLE PREDICTION (Fixes "Action Failed" Error) ---
-// Matches http://localhost:5000/api/predictions/:id
+// Matches https://houseprice-prediction-1-0dif.onrender.com/api/predictions/:id
 // routes/prediction.js
 
 // --- DELETE SINGLE PREDICTION ---
-// This handles: DELETE http://localhost:5000/api/predictions/ID_HERE
+// This handles: DELETE https://houseprice-prediction-1-0dif.onrender.com/api/predictions/ID_HERE
 router.delete('/:id', async (req, res) => {
   try {
     // We use the ID passed in the URL (req.params.id)

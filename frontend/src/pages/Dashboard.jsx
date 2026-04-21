@@ -47,12 +47,15 @@ const Dashboard = () => {
   }, [isDarkMode]);
 
   const fetchHistory = useCallback(async () => {
-    if (!userId) return;
-    try {
-      const res = await axios.get(`http://localhost:5000/api/predictions/history/${userId}`);
-      setHistory(res.data);
-    } catch (err) { console.error("History fetch failed"); }
-  }, [userId]);
+  if (!userId) return;
+
+  try {
+    const res = await getHistory(userId);
+    setHistory(res.data);
+  } catch (err) {
+    console.error("History fetch failed");
+  }
+}, [userId]);
 
   useEffect(() => { fetchHistory(); }, [fetchHistory]);
 
@@ -74,7 +77,7 @@ const Dashboard = () => {
 
         // 2. SAVE to Node.js Backend using the correct headers to avoid 401
         const saveRes = await axios.post(
-          'http://localhost:5000/api/predictions/calculate', 
+          'https://houseprice-prediction-1-0dif.onrender.com/api/predictions/calculate', 
           {
             ...formData,
             ...mlResult,
@@ -111,7 +114,7 @@ const Dashboard = () => {
   const toggleSave = async (id) => {
     if (!userId) { navigate('/auth'); return; }
     try {
-      await axios.patch(`http://localhost:5000/api/predictions/save/${id}`);
+      await axios.patch(`https://houseprice-prediction-1-0dif.onrender.com/api/predictions/save/${id}`);
       fetchHistory();
       if (predictionData && predictionData._id === id) {
         setPredictionData(prev => ({ ...prev, isSaved: !prev.isSaved }));
