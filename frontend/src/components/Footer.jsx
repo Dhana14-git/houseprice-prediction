@@ -45,7 +45,7 @@ const Footer = () => {
           
           <div className="flex gap-8">
             {['language', 'group', 'policy'].map((icon) => (
-              <a 
+              <button
                 key={icon} 
                 href="#" 
                 className="text-slate-400 hover:text-[#137fec] transition-colors duration-300"
@@ -53,7 +53,7 @@ const Footer = () => {
                 <span className="material-symbols-outlined text-2xl">
                   {icon}
                 </span>
-              </a>
+              </button>
             ))}
           </div>
         </div>
