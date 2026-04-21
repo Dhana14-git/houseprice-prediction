@@ -17,9 +17,8 @@ router.post('/calculate', async (req, res) => {
     console.log("✅ ML Response:", mlResponse.data);
 
     const { predictedValue, accuracyScore } = mlResponse.data;
-    const { userId, address, ...rest } = req.body;
-    const address = req.body.address || "Unknown Location";
-
+    const { userId, ...rest } = req.body;
+const address = req.body.address || "Unknown Location";
     // ✅ SAVE TO DB
     const newPrediction = new Prediction({
       user: userId,
